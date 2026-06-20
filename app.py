@@ -83,8 +83,10 @@ if "questions" not in st.session_state:
     st.session_state.questions = []
 if "answers" not in st.session_state:
     st.session_state.answers = []
-if "interview_score" not in st.session_state:
-    st.session_state.interview_score = 0
+if "answered" not in st.session_state:
+    st.session_state.answered = False
+if "evaluation" not in st.session_state:
+    st.session_state.evaluation = ""
 
 st.markdown("<h1 style='text-align:center'>🤖 AI Hiring Copilot</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center;color:#888'>Intelligent Resume Analysis & Interview Platform</p>", unsafe_allow_html=True)
@@ -158,7 +160,7 @@ elif st.session_state.stage == "ats":
                 st.session_state.jd_skills,
                 st.session_state.gap_result['missing_skills']
             )
-            st.session_state.questions = questions.split('\n')
+            st.session_state.questions = [q for q in questions.split('\n') if q.strip()]
             st.session_state.stage = "interview"
             st.rerun()
 
@@ -167,11 +169,11 @@ elif st.session_state.stage == "interview":
     st.info("Answer each question honestly. AI will evaluate your responses.")
 
     with st.form("interview_form"):
-        candidate_answer = st.text_area("Your Answer", height=150)
         st.markdown("**Interview Questions:**")
         for q in st.session_state.questions[:5]:
             if q.strip():
                 st.markdown(q)
+        candidate_answer = st.text_area("Your Answer", height=150)
         submitted = st.form_submit_button("📤 Submit Answer")
 
     if submitted and candidate_answer:
@@ -181,11 +183,18 @@ elif st.session_state.stage == "interview":
                 candidate_answer
             )
             st.session_state.interview_score = 7
-            st.success("Answer evaluated!")
-            st.write(evaluation)
+            st.session_state.evaluation = evaluation
+            st.session_state.answered = True
+            st.rerun()
 
+    if st.session_state.get("answered"):
+        st.success("✅ Answer evaluated!")
+        st.write(st.session_state.evaluation)
+
+    if st.session_state.get("answered"):
         if st.button("📋 Generate Final Report", use_container_width=True):
             st.session_state.stage = "report"
+            st.session_state.answered = False
             st.rerun()
 
 elif st.session_state.stage == "report":
