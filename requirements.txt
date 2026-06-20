@@ -1,0 +1,14 @@
+groq
+python-dotenv
+pypdf
+spacy
+sentence-transformers
+faiss-cpu
+langchain
+langchain-community
+langchain-groq
+langchain-huggingface
+fastapi
+uvicorn
+streamlit
+pandas
